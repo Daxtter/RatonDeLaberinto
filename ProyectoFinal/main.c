@@ -29,7 +29,6 @@ void dirreccionLllantaIzquierda(char direccion);
 void direccionLlantaDerecha(char direccion);
 void velocidadLlantaDerecha(uint8_t Velocidad);
 void velocidadLlantaIzquierda(uint8_t Velocidad);
-void switchesEnPolling();
 void imprimir(float distancia);
 void giarHaciaDerecha(float distancia);
 void ajustarVelocidades();
@@ -38,28 +37,12 @@ void girarALaDerecha();
 void mediaVueltaDerechaOverflow();
 uint8_t tiempoSinPared(uint8_t,float);
 uint8_t girarPorCNY(uint8_t);
-
-void mantenerseALaPared(float dist);
 int main(void)
 {
 	uint8_t dejaDeVerPared = 7;
 	bool girarDerecha = true;
 	int banderaEnviarPulso = 0;
-	//bool girar = false;
-	//Entrada de botones
-
-	DDRC &= ~(1<<PINC2); //
-	DDRC &= ~(1<<PINC3); //
-	DDRC &= ~(1<<PINC4); //
-	DDRC &= ~(1<<PINC5); //
-
-	//Pull up en los switches
-	/*
-	PORTC |= (1<<PINC2);
-	PORTC |= (1<<PINC3);
-	PORTC |= (1<<PINC4);
-	PORTC |= (1<<PINC5);
-	*/
+	
 	//Salida de direcciones
 	DDRD |= (1<<PIND0); //Drive para rueda izquierda
 	DDRD |= (1<<PIND1); //Reverse para rueda izquierda
@@ -128,7 +111,6 @@ int main(void)
 			tiempoLeido = false;
 		}
 		_delay_ms(8);
-		mantenerseALaPared(distanciaCNY);
 		
 		if(distancia <= 9  & dejaDeVerPared == 1){
 			if (distancia<= 7)
@@ -188,66 +170,19 @@ int main(void)
 			dejaDeVerParedCNY = 1;
 		}
 		
-		//mantenerseALaPared(distanciaCNY);
 		ajustarVelocidades();
 		imprimir(distancia);
-		//_delay_ms(10);_delay_ms(1000);
-
+		
 	}
 }
 void imprimir(float distancia){
-	/*
-	char cadena[20];
-	sprintf(cadena, "Valor %f",distancia);
-	lcd_goto_xy(0,0);
-
-	7
-
-	lcd_write_word(cadena);
-	*/
+	
 	if (distancia<11)
 	{
 		PORTB |= (1<<PINB5);
 	}else
 	{
 		PORTB &= ~(1<<PINB5);
-	}
-}
-void switchesEnPolling(){
-	//Primero
-	//Para que no este cambiando la velocidad
-	if(PINC & (1<<PINC2) ){
-		nivelVelocidad = 0;
-		modoColision = true;
-		girarDerecha = true;
-	}
-	else{
-		if (PINC & (1<<PINC4) )
-		{
-			nivelVelocidad = 2;
-			modoColision = false;
-		}
-		else
-		{
-			if (PINC & (1<<PINC5) )
-			{
-				nivelVelocidad = 3;
-				girarDerecha = false;
-			}
-			else{
-				nivelVelocidad = 1;
-			}
-		}
-	}
-	//Segundo
-	if(PINC & (1<<PINC3)){
-		esDrive = false;
-
-	
-	}
-	else
-	{
-		esDrive = true;
 	}
 }
 void ajustarVelocidades(){
@@ -292,29 +227,6 @@ uint8_t girarPorCNY(uint8_t tiempo){
 		yaGiro --;
 	}
 	return tiempo;
-}
-void mantenerseALaPared(float dist){
-	if (dist>5 & dist <= 90 )
-	{
-		
-		adicionIzquierda = 5;
-		adicionDerecha = -5;
-	}
-	else
-	{
-		if (dist<-2.5 )
-		{
-			//imprimir(8);
-			adicionIzquierda = -5;
-			adicionDerecha = 5;	
-		}
-		else
-		{
-			adicionIzquierda = 0;
-			adicionDerecha = 0;
-			
-		}
-	}
 }
 void velocidadLlantaDerecha(uint8_t Velocidad){
 	uint8_t numeroObtenido = (VELOCIDADINICIAL * Velocidad) + adicionDerecha;
